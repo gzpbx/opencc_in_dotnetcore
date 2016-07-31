@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -13,20 +14,29 @@ namespace ConsoleApp2
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-
-            IntPtr o = opencc_open(@"E:\opencc\s2t.json");
-
-            if (o != IntPtr.Zero && o != new IntPtr(-1))
+            if (File.Exists(DLL_NAME_64))
             {
-                var str = "龙，头发 发现";
-                Console.WriteLine(str);
-                var input = Encoding.UTF8.GetBytes(str);
-                IntPtr output = opencc_convert_utf8(o, input, -1);
-                var result = PtrToStringUtf8(output);
-                opencc_convert_utf8_free(output);
-                Console.WriteLine(result);
-            }
+                IntPtr o = opencc_open(@"../../opencc/s2t.json");
 
+                if (o != IntPtr.Zero && o != new IntPtr(-1))
+                {
+                    var str = "龙，头发 发现";
+                    Console.WriteLine(str);
+                    var input = Encoding.UTF8.GetBytes(str);
+                    IntPtr output = opencc_convert_utf8(o, input, -1);
+                    var result = PtrToStringUtf8(output);
+                    opencc_convert_utf8_free(output);
+                    Console.WriteLine(result);
+                }
+                else
+                {
+                    Console.WriteLine("something is wrong !! ");
+                }
+            }
+            else
+            {
+                Console.WriteLine("opencc.dll doesn't exits !!, CurrentDirectory: " + Directory.GetCurrentDirectory());
+            }
 
             Console.WriteLine("Press any key to exit !!");
             Console.ReadKey();
@@ -46,7 +56,7 @@ namespace ConsoleApp2
             return System.Text.Encoding.UTF8.GetString(array);
         }
 
-        const string DLL_NAME_64 = "opencc.dll";
+        const string DLL_NAME_64 = "../../opencc/opencc.dll";
 
         [DllImport(DLL_NAME_64, EntryPoint = "opencc_open", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr opencc_open(string configFileName);
